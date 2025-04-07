@@ -13,7 +13,7 @@ function gameBoard() {
   const getBoard = () => board;
 
   const addSelection = (row, col, player) => {
-    const openSlot = board[row][col];
+    let openSlot = board[row][col];
 
     if (
       openSlot.getValue() !== "" ||
@@ -22,7 +22,6 @@ function gameBoard() {
       col >= 3 ||
       col < 0
     ) {
-      console.log("Please try again!");
       return false;
     } else {
       openSlot.selectSlot(player.value);
@@ -158,7 +157,7 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
   };
 
   const playNextRound = (row, col) => {
-    const success = board.addSelection(row, col, getCurrentPlayer());
+    let success = board.addSelection(row, col, getCurrentPlayer());
 
     if (!success) {
       console.log(
@@ -173,12 +172,14 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
       winner = true;
       board.printBoard();
       console.log(`${getCurrentPlayer().name} wins!`);
+      resetGame();
       return true;
     }
 
     if (checkTie()) {
       board.printBoard();
       console.log("It's a tie!");
+      resetGame();
       return true;
     }
 
@@ -207,44 +208,44 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
 }
 
 function displayController() {
-  const game = gameController();
-  const boardDiv = document.querySelector(".board");
-  const turnDiv = document.querySelector(".playerTurn");
-  // Create a function to handle the DOM/display logic so that whenever a move is made in the console, the board
-  // is mirrored on the webpage
-
-  const updateDisplay = () => {
-    boardDiv.textContent = "";
-    const board = game.getBoard();
-    const player = game.getCurrentPlayer();
-    turnDiv.textContent += `${player.name}'s turn`;
-
-    board.forEach((rowArr, rowIndex) => {
-      rowArr.forEach((cell, colIndex) => {
-        const cellBtn = document.createElement("button");
-        cellBtn.classList.add("Cell");
-        cellBtn.dataset.column = colIndex;
-        cellBtn.dataset.row = rowIndex;
-        cellBtn.textContent = cell.getValue();
-        boardDiv.appendChild(cellBtn);
+    const game = gameController();
+    const boardDiv = document.querySelector(".board");
+    const turnDiv = document.querySelector(".playerTurn");
+  
+    const updateDisplay = () => {
+      boardDiv.textContent = "";
+      const board = game.getBoard();
+      const player = game.getCurrentPlayer();
+      turnDiv.textContent = `${player.name}'s turn`;
+  
+      board.forEach((rowArr, rowIndex) => {
+        rowArr.forEach((cell, colIndex) => {
+          const cellBtn = document.createElement("button");
+          cellBtn.classList.add("Cell");
+          cellBtn.dataset.column = colIndex;
+          cellBtn.dataset.row = rowIndex;
+          cellBtn.textContent = cell.getValue();
+          boardDiv.appendChild(cellBtn);
+        });
       });
-    });
-
+    };
+  
     function clickHandler(e) {
       const column = Number(e.target.dataset.column);
       const row = Number(e.target.dataset.row);
-      const player = game.getCurrentPlayer();
-
+  
       if (isNaN(column) || isNaN(row)) return;
-
-      game.playNextRound(row, column, player);
+  
+      game.playNextRound(row, column);
       updateDisplay();
     }
-
+  
+    // ✅ Attach clickHandler once, not inside updateDisplay
     boardDiv.addEventListener("click", clickHandler);
-  };
-
-  updateDisplay();
-}
+  
+    // ✅ Only call updateDisplay to draw board
+    updateDisplay();
+  }
+  
 
 displayController();
