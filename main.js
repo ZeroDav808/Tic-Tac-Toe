@@ -71,11 +71,13 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
     {
       name: name1,
       value: "X",
+      score: 0,
     },
 
     {
       name: name2,
       value: "O",
+      score: 0,
     },
   ];
 
@@ -172,6 +174,7 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
       winner = true;
       board.printBoard();
       console.log(`${getCurrentPlayer().name} wins!`);
+      getCurrentPlayer().score++;
       resetGame();
       return true;
     }
@@ -208,6 +211,11 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
 }
 
 function displayController() {
+
+    const dataObj = {};
+    const form = document.querySelector('form');
+    let isFormSubmitted = false;
+
     const game = gameController();
     const boardDiv = document.querySelector(".board");
     const turnDiv = document.querySelector(".playerTurn");
@@ -225,10 +233,29 @@ function displayController() {
           cellBtn.dataset.column = colIndex;
           cellBtn.dataset.row = rowIndex;
           cellBtn.textContent = cell.getValue();
+          cellBtn.style.borderRadius = "25px";
+          cellBtn.style.border = "5px solid white";
+          cellBtn.style.fontSize = "25px";
           boardDiv.appendChild(cellBtn);
         });
       });
     };
+
+    function formHandler(event) {
+        event.preventDefault();
+        isFormSubmitted = true;
+
+        const formData = new FormData(form);
+
+        formData.forEach((value, key) => {
+            dataObj[key] = value;
+        });
+
+        // ✅ Attach clickHandler once, not inside updateDisplay
+        boardDiv.addEventListener("click", clickHandler);
+
+        console.log("Form submitted. Data:", dataObj); // Logs updated data after form submission
+    }
   
     function clickHandler(e) {
       const column = Number(e.target.dataset.column);
@@ -240,8 +267,10 @@ function displayController() {
       updateDisplay();
     }
   
+    form.addEventListener('submit', formHandler);
+
     // ✅ Attach clickHandler once, not inside updateDisplay
-    boardDiv.addEventListener("click", clickHandler);
+    //boardDiv.addEventListener("click", clickHandler);
   
     // ✅ Only call updateDisplay to draw board
     updateDisplay();
