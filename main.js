@@ -211,70 +211,70 @@ function gameController(name1 = "Player One", name2 = "Player Two") {
 }
 
 function displayController() {
+  let game;
+  const dataObj = {};
+  const form = document.querySelector("form");
+  let isFormSubmitted = false;
 
-    const dataObj = {};
-    const form = document.querySelector('form');
-    let isFormSubmitted = false;
+  const boardDiv = document.querySelector(".board");
+  const turnDiv = document.querySelector(".playerTurn");
 
-    const game = gameController();
-    const boardDiv = document.querySelector(".board");
-    const turnDiv = document.querySelector(".playerTurn");
-  
-    const updateDisplay = () => {
-      boardDiv.textContent = "";
-      const board = game.getBoard();
-      const player = game.getCurrentPlayer();
-      turnDiv.textContent = `${player.name}'s turn`;
-  
-      board.forEach((rowArr, rowIndex) => {
-        rowArr.forEach((cell, colIndex) => {
-          const cellBtn = document.createElement("button");
-          cellBtn.classList.add("Cell");
-          cellBtn.dataset.column = colIndex;
-          cellBtn.dataset.row = rowIndex;
-          cellBtn.textContent = cell.getValue();
-          cellBtn.style.borderRadius = "25px";
-          cellBtn.style.border = "5px solid white";
-          cellBtn.style.fontSize = "25px";
-          boardDiv.appendChild(cellBtn);
-        });
+  const updateDisplay = () => {
+    boardDiv.textContent = "";
+    const board = game.getBoard();
+    const player = game.getCurrentPlayer();
+    turnDiv.textContent = `${player.name}'s turn`;
+
+    board.forEach((rowArr, rowIndex) => {
+      rowArr.forEach((cell, colIndex) => {
+        const cellBtn = document.createElement("button");
+        cellBtn.classList.add("Cell");
+        cellBtn.dataset.column = colIndex;
+        cellBtn.dataset.row = rowIndex;
+        cellBtn.textContent = cell.getValue();
+        cellBtn.style.borderRadius = "25px";
+        cellBtn.style.border = "5px solid white";
+        cellBtn.style.fontSize = "25px";
+        boardDiv.appendChild(cellBtn);
       });
-    };
+    });
+  };
 
-    function formHandler(event) {
-        event.preventDefault();
-        isFormSubmitted = true;
+  function formHandler(event) {
+    event.preventDefault();
+    isFormSubmitted = true;
 
-        const formData = new FormData(form);
+    const formData = new FormData(form);
 
-        formData.forEach((value, key) => {
-            dataObj[key] = value;
-        });
+    formData.forEach((value, key) => {
+      dataObj[key] = value;
+    });
 
-        // ✅ Attach clickHandler once, not inside updateDisplay
-        boardDiv.addEventListener("click", clickHandler);
-
-        console.log("Form submitted. Data:", dataObj); // Logs updated data after form submission
-    }
-  
-    function clickHandler(e) {
-      const column = Number(e.target.dataset.column);
-      const row = Number(e.target.dataset.row);
-  
-      if (isNaN(column) || isNaN(row)) return;
-  
-      game.playNextRound(row, column);
-      updateDisplay();
-    }
-  
-    form.addEventListener('submit', formHandler);
-
+    game = gameController(dataObj.name1, dataObj.name2);
+    updateDisplay();
     // ✅ Attach clickHandler once, not inside updateDisplay
-    //boardDiv.addEventListener("click", clickHandler);
-  
-    // ✅ Only call updateDisplay to draw board
+    boardDiv.addEventListener("click", clickHandler);
+
+    console.log("Form submitted. Data:", dataObj); // Logs updated data after form submission
+  }
+
+  function clickHandler(e) {
+    const column = Number(e.target.dataset.column);
+    const row = Number(e.target.dataset.row);
+
+    if (isNaN(column) || isNaN(row)) return;
+
+    game.playNextRound(row, column);
     updateDisplay();
   }
-  
+
+  form.addEventListener("submit", formHandler);
+
+  // ✅ Attach clickHandler once, not inside updateDisplay
+  //boardDiv.addEventListener("click", clickHandler);
+
+  // ✅ Only call updateDisplay to draw board
+  //updateDisplay();
+}
 
 displayController();
